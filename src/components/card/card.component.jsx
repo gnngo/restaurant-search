@@ -1,15 +1,11 @@
 import './card.styles.css';
 
-const Card = ({restaurant: {id, name, website, phone}}) => {
+const Card = ({restaurant: {resID, Name}}) => {
     return (
-        <div className='card-container' key={id}>
-            <h2> {name} </h2>
-            <p> {website} </p>
-            <p> {phone} </p>
+        <div className='card-container' key={resID}>
+            <h2> {Name} </h2>
         </div>
     )
 }
 
 export default Card;
-
-

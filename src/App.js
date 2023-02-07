@@ -1,44 +1,54 @@
 import { useState, useEffect } from 'react';
-import CardList from './components/card-list/card-list.component'
-import SearchBox from './components/search-box/search-box.component'
+import CardList from './components/card-list/card-list.component';
+import SearchBox from './components/search-box/search-box.component';
 import './App.css';
 
 const App = () => {
-  const [searchField, setSearchField] = useState(''); // [value, setValue]
+  const [searchField, setSearchField] = useState('');
   const [restaurants, setRestaurants] = useState([]);
-  const [filteredRestaurants, setFilterRestaurants] = useState(restaurants);
-  
-  useEffect(() => { 
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then((response) => response.json())
-      .then((users) => setRestaurants(users));
-  }, []);
+  const [filteredRestaurants, setFilterRestaurants] = useState([]);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    const newFilteredRestaurants = restaurants.filter((restaurant) => {
-      return restaurant.name.toLocaleLowerCase().includes(searchField);
-  });
-    setFilterRestaurants(newFilteredRestaurants);
-  },[restaurants, searchField]);
+    const fetchData = async () => {
+      const response = await fetch(
+        `https://6b2uk8oqk7.execute-api.us-west-2.amazonaws.com/prod/restaurant?name=${searchField}`
+      );
+      const data = await response.json();
+      setRestaurants(data);
+      console.log(data);
+    };
+    fetchData();
+  }, [searchField]);
 
-  const onSearchChange = (event) => {
+  useEffect(() => {
+    const newFilteredRestaurants = restaurants.filter(restaurant => {
+      return restaurant.Name.toLocaleLowerCase().includes(searchField);
+    });
+    setFilterRestaurants(newFilteredRestaurants);
+    setNotFound(newFilteredRestaurants.length === 0 && searchField !== '');
+  }, [restaurants, searchField]);
+
+  const onSearchChange = event => {
     const searchFieldString = event.target.value.toLocaleLowerCase();
     setSearchField(searchFieldString);
   };
 
   return (
     <div className="App">
-      <h1 className='app-title'> Restaurant </h1>
-
-        <SearchBox 
-          className='restaurant-search-box'
-          onChangeHandler={onSearchChange} 
-          placeholder='Search Name' 
-        />
-
+      <h1 className="app-title">Restaurant</h1>
+      <SearchBox
+        className="restaurant-search-box"
+        onChangeHandler={onSearchChange}
+        placeholder="Search Name"
+      />
+      {notFound ? (
+        <h2>Restaurant cannot be found</h2>
+      ) : (
         <CardList restaurants={filteredRestaurants} />
+      )}
     </div>
   );
-}
+};
 
 export default App;
